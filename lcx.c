@@ -127,10 +127,9 @@ ThreadReturn  in_data_tran(void* p)
             if(FD_ISSET(t[i],&check_list))
             {
                 int len = recv(t[i],buf,BUF_LEN,0);
-                if(len>0)
+                if(len>0 && send(t[i==0],buf,len,0)>0 )
                 {
                     total_byte += len;
-                    send(t[i==0],buf,len,0);
                     char out[100];
                     sprintf(out,"\n[+]  Send <Total %d>: %d.%d.%d.%d:%d -> %d.%d.%d.%d:%d,  %d Bytes\n",
                     total_connect,ip[i][0],ip[i][1],ip[i][2],ip[i][3],port[i],ip[i==0][0],ip[i==0][1],ip[i==0][2],ip[i==0][3],port[i==0],len);
