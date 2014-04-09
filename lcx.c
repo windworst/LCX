@@ -609,7 +609,8 @@ int main(int argc,char** argv)
 {
 	SOCKET_INIT
     signal(SIGINT,ctrl_c);
-	main_func(argc,argv);
+	int ret = main_func(argc,argv);
+#ifdef COMMAND_MODE
 	while(1)
 	{
 		char input_buf[8192]={0};
@@ -649,8 +650,9 @@ int main(int argc,char** argv)
 			printf("argv[%d]: %s\n",i,argv_list[i]);
 		}
 #endif
-		main_func(argc_count,argv_list);
+		ret = main_func(argc_count,argv_list);
 	}
-	return 0;
+#endif
+	return ret;
 }
 
