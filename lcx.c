@@ -67,7 +67,7 @@ void ctrl_c(int32_t i)
     fprintf(stdout,"\n[-] Receive: Ctrl+C..I'll quit..\n");
     fprintf(stdout,"\n[+] Let me exit....\n");
     fprintf(stdout,"[+] All Right!\n\n");
-	exit(0);
+  exit(0);
 }
 
 
@@ -494,10 +494,10 @@ int main_func(int argc,char**argv)
         break;
     case 1:
         if (argc<4)
-		{
-			help(argv[0]);
-			return 0;
-		}
+    {
+      help(argv[0]);
+      return 0;
+    }
         else
         {
             port1 = getport(argv[n]);
@@ -505,11 +505,11 @@ int main_func(int argc,char**argv)
         }
         break;
     case 2:
-        if (argc<6)		
-		{
-			help(argv[0]);
-			return 0;
-		}
+        if (argc<6)    
+    {
+      help(argv[0]);
+      return 0;
+    }
         else
         {
             addr1 = gethost(argv[n]);
@@ -520,10 +520,10 @@ int main_func(int argc,char**argv)
         break;
     case 3:
         if (argc<5)
-		{
-			help(argv[0]);
-			return 0;
-		}
+    {
+      help(argv[0]);
+      return 0;
+    }
         else
         {
             port1 = getport(argv[n]);
@@ -533,12 +533,12 @@ int main_func(int argc,char**argv)
         break;
     default:
         {
-			help(argv[0]);
-			return 0;
-		}
+      help(argv[0]);
+      return 0;
+    }
         break;
     }
-	if(port1==-1 || port2==-1 || addr1==-1 || addr2==-1 )return 0;
+  if(port1==-1 || port2==-1 || addr1==-1 || addr2==-1 )return 0;
     const char* logpath=NULL,*hexpath=NULL,*textpath=NULL;
     while (++n<argc)
     {
@@ -577,20 +577,20 @@ int main_func(int argc,char**argv)
     }
 
     if (logpath)
-	{
-		setfile(&lcx_log,logpath);
-		if(lcx_log==NULL)return 0;
-	}
+  {
+    setfile(&lcx_log,logpath);
+    if(lcx_log==NULL)return 0;
+  }
     if (hexpath)
-	{
-		setfile(&lcx_hex,hexpath);
-		if(lcx_hex==NULL)return 0;
-	}
+  {
+    setfile(&lcx_hex,hexpath);
+    if(lcx_hex==NULL)return 0;
+  }
     if (textpath)
-	{
-		setfile(&lcx_text,textpath);
-		if(lcx_text==NULL)return 0;
-	}
+  {
+    setfile(&lcx_text,textpath);
+    if(lcx_text==NULL)return 0;
+  }
 
     switch(i)
     {
@@ -606,52 +606,52 @@ int main_func(int argc,char**argv)
 
 int main(int argc,char** argv)
 {
-	SOCKET_INIT
+  SOCKET_INIT
     signal(SIGINT,ctrl_c);
-	int ret = main_func(argc,argv);
+  int ret = main_func(argc,argv);
 #ifdef COMMAND_MODE
-	while(1)
-	{
-		char input_buf[8192]={0};
-		char *argv_list[ARGC_MAXCOUNT]={"lcx"};
-		printf(">");
-		int argc_count = 1;
-		int flag = 0;
-		int i;
-		for(i=0;i<8192;++i)
-		{
-			input_buf[i] = getchar();
-			if(input_buf[i] == '\n' || input_buf[i] == -1 )
-			{
-				input_buf[i] = '\0';
-			}
-			if(input_buf[i]=='\0' || argc_count>=ARGC_MAXCOUNT-2)
-			{
-				break;
-			}
-			if(flag ==0 && input_buf[i]!=' ' && input_buf[i]!='\0' )
-			{
-				flag = 1;
-				argv_list[argc_count] = input_buf+i;
-				++argc_count;
-			}
-			else if(flag ==1 && (input_buf[i]==' ' || input_buf[i]=='\0') ) 
-			{
-				flag = 0;
-				input_buf[i] = '\0';
-			}
-		}
-		argv_list[argc_count] = NULL;
+  while(1)
+  {
+    char input_buf[8192]={0};
+    char *argv_list[ARGC_MAXCOUNT]={"lcx"};
+    printf(">");
+    int argc_count = 1;
+    int flag = 0;
+    int i;
+    for(i=0;i<8192;++i)
+    {
+      input_buf[i] = getchar();
+      if(input_buf[i] == '\n' || input_buf[i] == -1 )
+      {
+        input_buf[i] = '\0';
+      }
+      if(input_buf[i]=='\0' || argc_count>=ARGC_MAXCOUNT-2)
+      {
+        break;
+      }
+      if(flag ==0 && input_buf[i]!=' ' && input_buf[i]!='\0' )
+      {
+        flag = 1;
+        argv_list[argc_count] = input_buf+i;
+        ++argc_count;
+      }
+      else if(flag ==1 && (input_buf[i]==' ' || input_buf[i]=='\0') ) 
+      {
+        flag = 0;
+        input_buf[i] = '\0';
+      }
+    }
+    argv_list[argc_count] = NULL;
 #ifdef LCX_DEBUG
-		putchar('\n');
-		for(i=0;i<argc_count;++i)
-		{
-			printf("argv[%d]: %s\n",i,argv_list[i]);
-		}
+    putchar('\n');
+    for(i=0;i<argc_count;++i)
+    {
+      printf("argv[%d]: %s\n",i,argv_list[i]);
+    }
 #endif
-		ret = main_func(argc_count,argv_list);
-	}
+    ret = main_func(argc_count,argv_list);
+  }
 #endif
-	return ret;
+  return ret;
 }
 
