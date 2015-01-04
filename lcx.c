@@ -4,6 +4,8 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <signal.h>
 #include <stdint.h>
 
@@ -332,7 +334,7 @@ int lcx_listen(unsigned short port1,unsigned short port2)
     return 0;
 }
 
-int lcx_tran(unsigned short port1,unsigned long ip2,unsigned long port2)
+int lcx_tran(unsigned short port1,unsigned long ip2,unsigned short port2)
 {
     SOCKET_INIT
     SOCKET s = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
@@ -388,7 +390,7 @@ int lcx_tran(unsigned short port1,unsigned long ip2,unsigned long port2)
         unsigned char* ip =(unsigned char*)&sa.sin_addr.s_addr;
         sprintf(out1,"%d.%d.%d.%d:%d",ip[0],ip[1],ip[2],ip[3],htons(sa.sin_port));
         ip = (unsigned char*)&ip2;
-        sprintf(out2,"%d.%d.%d.%d:%d",ip[0],ip[1],ip[2],ip[3],htons(port2));
+        sprintf(out2,"%d.%d.%d.%d:%d",ip[0],ip[1],ip[2],ip[3],(port2));
         fprintf(stdout,"\n[+]  Connect From %s, Now Connect to %s\n",out1,out2);fflush(stdout);
         if(lcx_log)fprintf(lcx_log,"\n[+]  Connect From %s, Now Connect to %s\n",out1,out2),fflush(lcx_log);
         sa.sin_port = htons(port2);
