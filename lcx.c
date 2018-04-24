@@ -1,6 +1,6 @@
 /*
 Lcx: Port Data Transfer
-Compile Environment:Windows Codeblocks 10.05/Ubuntu 10.04 Codeblocks 8.10
+Compile Environment: Windows / Linux / Mac OS / Android, Gcc
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,23 +17,12 @@ Compile Environment:Windows Codeblocks 10.05/Ubuntu 10.04 Codeblocks 8.10
 #include <windows.h>
 
 #define SOCKET_INIT {WSADATA wsa;WSAStartup(MAKEWORD(2,2),&wsa);}
-/*
-#define PTHREAD_INIT {pthread_win32_process_attach_np();pthread_win32_thread_attach_np();atexit(detach_ptw32);}
-
-static void detach_ptw32(void)
-{
-pthread_win32_thread_detach_np();
-pthread_win32_process_detach_np();
-}
-*/
-
 
 #define  ThreadReturn DWORD WINAPI
 
 #define delay(x) Sleep(x)
 
 #else  //LINUX COMPILE
-
 
 #define PTW32_STATIC_LIB
 #include <pthread.h>
@@ -44,7 +33,6 @@ pthread_win32_process_detach_np();
 #include <netinet/in.h>
 #include <sys/select.h>
 
-#define PTHREAD_INIT
 #define SOCKET_INIT
 
 typedef int SOCKET;
@@ -79,8 +67,7 @@ int in_createthread(Func run,void* data)
   HANDLE h = CreateThread(NULL,0,run,data,0,NULL);
   CloseHandle(h);
 #else
-  PTHREAD_INIT
-    pthread_t tt;
+  pthread_t tt;
   pthread_create(&tt,NULL,run,data);
 #endif
   delay(5);
@@ -97,7 +84,7 @@ ThreadReturn  in_data_tran(void* p)
   const unsigned char* ip[2];
   unsigned short port[2];
 
-  int len = sizeof(struct sockaddr_in);
+  socklen_t len = sizeof(struct sockaddr_in);
   if(getpeername(t[0],(struct sockaddr*)sa,&len)==-1 || getpeername(t[1],(struct sockaddr*)(sa+1),&len)==-1)
   {
     fprintf(stdout,"\n[-] Get Remote Host Failed\n");
@@ -195,9 +182,7 @@ long gethost(const char* name)
 
 int lcx_slave(const char* ip1_str,unsigned short port1,const char* ip2_str,unsigned short port2)
 {
-  SOCKET_INIT
-
-    char out1[100],out2[100];
+  char out1[100],out2[100];
   while(1)
   {
     unsigned long ip1 = gethost(ip1_str);
@@ -276,9 +261,7 @@ int lcx_slave(const char* ip1_str,unsigned short port1,const char* ip2_str,unsig
 
 int lcx_listen(unsigned short port1,unsigned short port2)
 {
-  SOCKET_INIT
-
-    SOCKET s[2]={-1,-1};
+  SOCKET s[2]={-1,-1};
   unsigned short p[2];
   p[0]=port1;
   p[1]=port2;
@@ -296,6 +279,9 @@ int lcx_listen(unsigned short port1,unsigned short port2)
       fprintf(stdout,"\n[+]  Create Socket %d Successed\n",i+1);fflush(stdout);
       if(lcx_log)fprintf(lcx_log,"\n[+]  Create Socket %d Successed\n",i+1),fflush(lcx_log);
       sa.sin_port = htons(p[i]);
+
+      int flag = 1;
+      setsockopt(s[i], SOL_SOCKET, SO_REUSEADDR, (const void*)&flag, sizeof(flag));
       if(bind(s[i],(struct sockaddr*)&sa,sizeof(sa))==0)
       {
         fprintf(stdout,"\n[+]  Bind On Port %u Success\n",p[i]);fflush(stdout);
@@ -336,7 +322,7 @@ int lcx_listen(unsigned short port1,unsigned short port2)
 
   i = 0;
   SOCKET t[2];
-  int sz = sizeof(sa);
+  socklen_t sz = sizeof(sa);
   while(1)
   {
     fprintf(stdout,"\n[+]  Waiting Connect On Port %u\n",p[i]);fflush(stdout);
@@ -365,15 +351,16 @@ int lcx_listen(unsigned short port1,unsigned short port2)
 
 int lcx_tran(unsigned short port1,const char* ip2_str,unsigned short port2)
 {
-  SOCKET_INIT
-    SOCKET s = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+  SOCKET s = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
   struct sockaddr_in sa;
   sa.sin_family = AF_INET;
   sa.sin_port = htons(port1);
   sa.sin_addr.s_addr = INADDR_ANY;
-  int ok =0;
+  socklen_t ok =0;
   if(s!=-1)
   {
+    int flag = 1;
+    setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const void*)&flag, sizeof(flag));
     if(bind(s,(struct sockaddr*)&sa,sizeof(sa))==0)
     {
       if(listen(s,SOMAXCONN)==0)
@@ -468,8 +455,12 @@ void help(const char* name)
 
 void about()
 {
+#ifdef ANONYMOUS
+  fprintf(stdout,"\nBy:     Anonymous\n");
+#else
   fprintf(stdout,"\nBy:     XiaoBaWang\n");
   fprintf(stdout,"Email:  windworst@gmail.com\n\n");
+#endif
 }
 
 long getport(const char *str)
@@ -628,19 +619,21 @@ int main_func(int argc,char**argv)
 
 int main(int argc,char** argv)
 {
+  signal(SIGINT,ctrl_c);
+
   SOCKET_INIT
-    signal(SIGINT,ctrl_c);
+
   int ret = main_func(argc,argv);
 #ifdef COMMAND_MODE
   while(1)
   {
-    char input_buf[8192]={0};
+    char input_buf[BUF_LEN]={0};
     char *argv_list[ARGC_MAXCOUNT]={"lcx"};
     printf(">");
     int argc_count = 1;
     int flag = 0;
     int i;
-    for(i=0;i<8192;++i)
+    for(i=0;i<BUF_LEN;++i)
     {
       input_buf[i] = getchar();
       if(input_buf[i] == '\n' || input_buf[i] == -1 )
@@ -664,16 +657,8 @@ int main(int argc,char** argv)
       }
     }
     argv_list[argc_count] = NULL;
-#ifdef LCX_DEBUG
-    putchar('\n');
-    for(i=0;i<argc_count;++i)
-    {
-      printf("argv[%d]: %s\n",i,argv_list[i]);
-    }
-#endif
     ret = main_func(argc_count,argv_list);
   }
 #endif
   return ret;
 }
-
