@@ -231,9 +231,7 @@ int lcx_slave(const char* ip1_str,unsigned short port1,const char* ip2_str,unsig
         {
           fprintf(stdout,"\n[+]  Connect %s Successed,Transfering...\n",out2);fflush(stdout);
           if(lcx_log)fprintf(lcx_log,"\n[+]  Connect %s Successed,Transfering...\n",out2),fflush(lcx_log);
-          in_createthread(in_data_tran,s);
-          fprintf(stdout, "\n  >>> Press Enter open new connections <<<  \n");fflush(stdout);
-          getchar();
+          in_data_tran(s);
         }
         else
         {
