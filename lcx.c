@@ -147,7 +147,6 @@ ThreadReturn  in_data_tran(void* p)
           OK = 0;
           fprintf(stdout,"\n[+]  Connection <Total %d> Cutdown, Total : %d Bytes\n\n",total_connect,total_byte);fflush(stdout);
           if(lcx_log)fprintf(lcx_log,"\n[+]  Connection <Total %d> Cutdown, Total : %d Bytes\n\n",total_connect,total_byte),fflush(lcx_log);
-
           break;
         }
       }
@@ -217,35 +216,32 @@ int lcx_slave(const char* ip1_str,unsigned short port1,const char* ip2_str,unsig
     {
       fprintf(stdout,"\n[+]  Connect %s, Please Wait\n",out1);fflush(stdout);
       if(lcx_log)fprintf(lcx_log,"\n[+]  Connect %s, Please Wait\n",out1),fflush(lcx_log);
-      while(connect(s[0],(struct sockaddr*)&sa[0],sizeof(struct sockaddr))!=0)
-      {
-        fprintf(stdout,"\n[-]  Connect %s Failed,Try Again..\n",out1);
-        if(lcx_log)fprintf(lcx_log,"\n[-]  Connect %s Failed,Try Again..\n",out1),fflush(lcx_log);
-        delay(1000);
-      }
-      char c;
-      if(recv(s[0],(char*)&c,1,MSG_PEEK)<=0)
+      if(connect(s[0],(struct sockaddr*)&sa[0],sizeof(struct sockaddr))!=0)
       {
         fprintf(stdout,"\n[-]  Connect %s Failed,CutDown...\n",out2);
         if(lcx_log)fprintf(lcx_log,"\n[-]  Connect %s Failed,CutDown...\n",out2),fflush(lcx_log);
         closesocket(s[0]);
         closesocket(s[1]);
-        continue;
-      }
-      fprintf(stdout,"\n[+]  Connect %s Successed,Now Connect %s\n",out1,out2);fflush(stdout);
-      if(lcx_log)fprintf(lcx_log,"\n[+]  Connect %s Successed,Now Connect %s\n",out1,out2),fflush(lcx_log);
-      if(connect(s[1],(struct sockaddr*)&sa[1],sizeof(struct sockaddr))==0)
-      {
-        fprintf(stdout,"\n[+]  Connect %s Successed,Transfering...\n",out2);fflush(stdout);
-        if(lcx_log)fprintf(lcx_log,"\n[+]  Connect %s Successed,Transfering...\n",out2),fflush(lcx_log);
-        in_createthread(in_data_tran,s);
       }
       else
       {
-        fprintf(stdout,"\n[-]  Connect %s Failed,CutDown...\n",out2);
-        if(lcx_log)fprintf(lcx_log,"\n[-]  Connect %s Failed,CutDown...\n",out2),fflush(lcx_log);
-        closesocket(s[0]);
-        closesocket(s[1]);
+        fprintf(stdout,"\n[+]  Connect %s Successed,Now Connect %s\n",out1,out2);fflush(stdout);
+        if(lcx_log)fprintf(lcx_log,"\n[+]  Connect %s Successed,Now Connect %s\n",out1,out2),fflush(lcx_log);
+        if(connect(s[1],(struct sockaddr*)&sa[1],sizeof(struct sockaddr))==0)
+        {
+          fprintf(stdout,"\n[+]  Connect %s Successed,Transfering...\n",out2);fflush(stdout);
+          if(lcx_log)fprintf(lcx_log,"\n[+]  Connect %s Successed,Transfering...\n",out2),fflush(lcx_log);
+          in_createthread(in_data_tran,s);
+          fprintf(stdout, "\n  >>> Press Enter open new connections <<<  \n");fflush(stdout);
+          getchar();
+        }
+        else
+        {
+          fprintf(stdout,"\n[-]  Connect %s Failed,CutDown...\n",out2);
+          if(lcx_log)fprintf(lcx_log,"\n[-]  Connect %s Failed,CutDown...\n",out2),fflush(lcx_log);
+          closesocket(s[0]);
+          closesocket(s[1]);
+        }
       }
     }
     else
@@ -623,7 +619,7 @@ int main(int argc,char** argv)
 
   SOCKET_INIT
 
-  int ret = main_func(argc,argv);
+    int ret = main_func(argc,argv);
 #ifdef COMMAND_MODE
   while(1)
   {
