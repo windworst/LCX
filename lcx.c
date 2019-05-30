@@ -15,6 +15,7 @@ Compile Environment: Windows / Linux / Mac OS / Android, Gcc
 
 #include <winsock2.h>
 #include <windows.h>
+#include <ws2tcpip.h>
 
 #define SOCKET_INIT {WSADATA wsa;WSAStartup(MAKEWORD(2,2),&wsa);}
 

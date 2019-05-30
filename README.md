@@ -2,6 +2,7 @@
 
 ###  Avaliable in Windows / Linux / Mac / Android ....
 
+use gcc/make
 
 ### Build
 
@@ -16,9 +17,16 @@ or
 ```
 for command mode.
 
-### hide author
+### Hide author
 
 ```
 ANONYMOUS=1 make
 ANONYMOUS=1 make command
 ```
+
+### Platform: windows
+
+```
+set PLATFORM=windows
+```
+and build

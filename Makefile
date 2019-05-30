@@ -2,11 +2,23 @@ ifdef ANONYMOUS
 	DFLAG=-DANONYMOUS
 endif
 
+CC=gcc
+RM=rm
+EXE=lcx
+
+ifeq ($(PLATFORM), windows)
+	WINDOWS_LIB=-lws2_32 -lwsock32
+	RM=del
+	EXE=lcx.exe
+endif
+
+FLAGS=-pthread -O2 $(WINDOWS_LIB) $(DFLAG)
+
 all : lcx.c
-	cc lcx.c -o lcx -pthread -O2 $(DFLAG)
+	$(CC) lcx.c -o $(EXE) $(FLAGS)
 
 command : lcx.c
-	cc lcx.c -o lcx -pthread -O2 -DCOMMAND_MODE $(DFLAG)
+	$(CC) lcx.c -o $(EXE) $(FLAGS) -DCOMMAND_MODE
 
 clean :
-	rm lcx
+	$(RM) $(EXE)
