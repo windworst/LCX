@@ -68,8 +68,11 @@ int in_createthread(Func run,void* data)
   HANDLE h = CreateThread(NULL,0,run,data,0,NULL);
   CloseHandle(h);
 #else
+  pthread_attr_t attr;
+  pthread_attr_init (&attr);
+  pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
   pthread_t tt;
-  pthread_create(&tt,NULL,run,data);
+  pthread_create(&tt,&attr,run,data);
 #endif
   delay(5);
   return 0;
