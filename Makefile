@@ -6,7 +6,7 @@ CC=gcc
 RM=rm
 EXE=lcx
 
-ifeq ($(PLATFORM), windows)
+ifeq ($(OS),Windows_NT)
 	WINDOWS_LIB=-lws2_32 -lwsock32
 	RM=del
 	EXE=lcx.exe

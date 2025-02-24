@@ -23,10 +23,3 @@ for command mode.
 ANONYMOUS=1 make
 ANONYMOUS=1 make command
 ```
-
-### Platform: windows
-
-```
-set PLATFORM=windows
-```
-and build
